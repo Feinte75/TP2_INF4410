@@ -11,18 +11,14 @@ import ca.polymtl.inf4402.tp1.shared.Operation;
 import ca.polymtl.inf4402.tp1.shared.ServerInterface;
 
 public class Server implements ServerInterface {
-
-	private Operations managerOp;
 	
 	public static void main(String[] args) {
 		Server server = new Server();
 		server.run();
-		
 	}
 
 	public Server() {
 		super();
-		managerOp = new Operations();
 	}
 
 	private void run() {
@@ -47,8 +43,6 @@ public class Server implements ServerInterface {
 		}
 	}
 
-	
-
 	@Override
 	public int doOperation(LinkedList<Operation> operations)
 			throws RemoteException {
@@ -56,13 +50,11 @@ public class Server implements ServerInterface {
 		
 		for(Operation operation : operations ){
 			if(operation.getNom().equals("fib")){
-				somme = managerOp.fib(operation.getOperande());
+				somme = Operations.fib(operation.getOperande());
 			}
 			else {
-				somme = managerOp.prime(operation.getOperande());
+				somme = Operations.prime(operation.getOperande());
 			}
-			
-			
 		}
 		
 		return somme;

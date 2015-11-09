@@ -15,21 +15,12 @@ import ca.polymtl.inf4402.tp1.shared.Operation;
 import ca.polymtl.inf4402.tp1.shared.ServerInterface;
 
 public class Client {
-	public static void main(String[] args) {
-		String distantHostname = null;
-
-		if (args.length > 0) {
-			distantHostname = args[0];
-		}
-
-		Client client = new Client(distantHostname);
-		client.run();
-	}
-
-									
-
+	
 	private ServerInterface serverStub = null;
-
+	private LinkedList<ServerInfo> secureServerInfos;
+	private LinkedList<ServerInfo> insecureServerInfos;
+	private InputParser inputParser;
+	
 	public Client(String distantServerHostname) {
 		super();
 
@@ -37,34 +28,29 @@ public class Client {
 			System.setSecurityManager(new SecurityManager());
 		}
 		serverStub = loadServerStub("127.0.0.1");
-		
 
 		if (distantServerHostname != null) {
 			serverStub = loadServerStub(distantServerHostname);
 		}
+		
+		secureServerInfos = new LinkedList<ServerInfo>();
+		insecureServerInfos = new LinkedList<ServerInfo>();
+		inputParser = new InputParser();
 	}
 
-	private void run(){
-		//try{
-			//readOp("donnees-2317.txt");
+	private void run() {
+		// try{
+		// readOp("donnees-2317.txt");
 		Operation op = new Operation("fib", 4);
 		LinkedList<Operation> listOp = new LinkedList<Operation>();
 		listOp.add(op);
-		
-		
+
 		try {
 			System.out.println(serverStub.doOperation(listOp));
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}	
-
-			
-			
-		//}catch(IOException e) {
-			
-		//}
-		
+		}
 	}
 
 	private ServerInterface loadServerStub(String hostname) {
@@ -74,8 +60,7 @@ public class Client {
 			Registry registry = LocateRegistry.getRegistry(hostname);
 			stub = (ServerInterface) registry.lookup("server");
 		} catch (NotBoundException e) {
-			System.out.println("Erreur: Le nom " + e.getMessage()
-					+ " n'est pas défini dans le registre.");
+			System.out.println("Erreur: Le nom " + e.getMessage() + " n'est pas défini dans le registre.");
 		} catch (AccessException e) {
 			System.out.println("Erreur: " + e.getMessage());
 		} catch (RemoteException e) {
@@ -85,36 +70,42 @@ public class Client {
 		return stub;
 	}
 
-	
-	
-
-	
-	//int result = distantServerStub.execute(4, 7);
+	// int result = distantServerStub.execute(4, 7);
 	/*
-	 * fonction pour lire les op du fichier 
+	 * fonction pour lire les op du fichier
 	 */
-	
-	private String readOp(String fileName) throws IOException{
-		BufferedReader br = new BufferedReader(new FileReader(fileName));
-		String everything =null ;
-		try {
-		    StringBuilder sb = new StringBuilder();
-		    String line = br.readLine();
 
-		    while (line != null) {
-		        sb.append(line);
-		        sb.append(System.lineSeparator());
-		        line = br.readLine();
-		    }
-		     everything = sb.toString();
-		    
-		//} finally {
-		    br.close();
-		    
-		}catch(IOException e) {
-			
+	private String readOp(String fileName) throws IOException {
+		BufferedReader br = new BufferedReader(new FileReader(fileName));
+		String everything = null;
+		try {
+			StringBuilder sb = new StringBuilder();
+			String line = br.readLine();
+
+			while (line != null) {
+				sb.append(line);
+				sb.append(System.lineSeparator());
+				line = br.readLine();
+			}
+			everything = sb.toString();
+
+			// } finally {
+			br.close();
+
+		} catch (IOException e) {
+
 		}
 		return everything;
-		
+	}
+
+	public static void main(String[] args) {
+		String distantHostname = null;
+
+		if (args.length > 0) {
+			distantHostname = args[0];
+		}
+
+		Client client = new Client(distantHostname);
+		client.run();
 	}
 }
