@@ -1,8 +1,10 @@
 package ca.polymtl.inf4402.tp1.client;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.rmi.AccessException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -38,19 +40,15 @@ public class Client {
 		inputParser = new InputParser();
 	}
 
-	private void run() {
-		// try{
-		// readOp("donnees-2317.txt");
+	private void run() throws IOException {
+		
 		Operation op = new Operation("fib", 4);
 		LinkedList<Operation> listOp = new LinkedList<Operation>();
 		listOp.add(op);
+		
+		
 
-		try {
-			System.out.println(serverStub.doOperation(listOp));
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 	}
 
 	private ServerInterface loadServerStub(String hostname) {
@@ -75,7 +73,7 @@ public class Client {
 	 * fonction pour lire les op du fichier
 	 */
 
-	private String readOp(String fileName) throws IOException {
+	private String readOp(String fileName) throws FileNotFoundException  {
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
 		String everything = null;
 		try {
@@ -98,7 +96,7 @@ public class Client {
 		return everything;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		String distantHostname = null;
 
 		if (args.length > 0) {
@@ -106,6 +104,8 @@ public class Client {
 		}
 
 		Client client = new Client(distantHostname);
-		client.run();
+		
+			client.run();
+		
 	}
 }
