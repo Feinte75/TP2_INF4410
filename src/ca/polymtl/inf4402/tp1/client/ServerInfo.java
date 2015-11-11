@@ -1,5 +1,10 @@
 package ca.polymtl.inf4402.tp1.client;
 
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "ServerInfo")
 public class ServerInfo {
 	
 	private String name;
@@ -8,14 +13,14 @@ public class ServerInfo {
 	private boolean hs;
 	private int timer;
 	
-	public ServerInfo(String name, String ip, int port, boolean hs, int timer) {
-		super();
-		this.name = name;
-		this.ip = ip;
-		this.port = port;
-		this.hs = hs;
-		this.timer = timer;
-	}
+//	public ServerInfo(String name, String ip, int port, boolean hs, int timer) {
+//		super();
+//		this.name = name;
+//		this.ip = ip;
+//		this.port = port;
+//		this.hs = hs;
+//		this.timer = timer;
+//	}
 
 	public String getName() {
 		return name;
@@ -24,7 +29,7 @@ public class ServerInfo {
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	@XmlElement(name="ip")  
 	public String getIp() {
 		return ip;
 	}
@@ -32,7 +37,7 @@ public class ServerInfo {
 	public void setIp(String ip) {
 		this.ip = ip;
 	}
-
+	@XmlElement(name="port")
 	public int getPort() {
 		return port;
 	}

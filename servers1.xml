@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<ServerInfos>
+	<ServerInfo>
+		<port>3</port>
+        <ip>127.0.0.1</ip>
+   	</ServerInfo>
+    <ServerInfo>
+        <ip>127.0.0.1</ip>
+        <port>2</port>
+    </ServerInfo>
+  
+</ServerInfos>
