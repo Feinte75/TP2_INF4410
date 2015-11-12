@@ -13,49 +13,46 @@ import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import javax.xml.bind.JAXBException;
+
 import ca.polymtl.inf4402.tp1.shared.Operation;
 import ca.polymtl.inf4402.tp1.shared.ServerInterface;
 
 public class Client {
 	
-	private ServerInterface serverStub = null;
-	private LinkedList<ServerInfo> secureServerInfos;
-	private LinkedList<ServerInfo> insecureServerInfos;
+	private LinkedList<ServerInterface> serverStubs;
+	private LinkedList<ServerInfo> serverInfos;
+	LinkedList<Operation> operations;
 	private InputParser inputParser;
 	
-	public Client(String distantServerHostname) {
+	public Client(String distantServerHostname, String serversPath, String operationsPath) {
 		super();
 
 		if (System.getSecurityManager() == null) {
 			System.setSecurityManager(new SecurityManager());
 		}
-		serverStub = loadServerStub("127.0.0.1");
 
-		if (distantServerHostname != null) {
-			serverStub = loadServerStub(distantServerHostname);
-		}
-		
-		secureServerInfos = new LinkedList<ServerInfo>();
-		insecureServerInfos = new LinkedList<ServerInfo>();
 		inputParser = new InputParser();
+		serverInfos = inputParser.getServers(serversPath);
+		operations = inputParser.getOperations(operationsPath);
+		
+		serverStubs = new LinkedList<ServerInterface>();
+		
+		// Load all server stubs from ip / port
+		for(ServerInfo serverInfo : serverInfos) {
+			serverStubs.add(loadServerStub(serverInfo.getName(), serverInfo.getPort()));
+		}
 	}
 
 	private void run() throws IOException {
 		
-		Operation op = new Operation("fib", 4);
-		LinkedList<Operation> listOp = new LinkedList<Operation>();
-		listOp.add(op);
-		
-		
-
-		
 	}
 
-	private ServerInterface loadServerStub(String hostname) {
+	private ServerInterface loadServerStub(String hostname, int port) {
 		ServerInterface stub = null;
 
 		try {
-			Registry registry = LocateRegistry.getRegistry(hostname);
+			Registry registry = LocateRegistry.getRegistry(hostname, port);
 			stub = (ServerInterface) registry.lookup("server");
 		} catch (NotBoundException e) {
 			System.out.println("Erreur: Le nom " + e.getMessage() + " n'est pas défini dans le registre.");
@@ -68,44 +65,19 @@ public class Client {
 		return stub;
 	}
 
-	// int result = distantServerStub.execute(4, 7);
-	/*
-	 * fonction pour lire les op du fichier
-	 */
-
-	private String readOp(String fileName) throws FileNotFoundException  {
-		BufferedReader br = new BufferedReader(new FileReader(fileName));
-		String everything = null;
-		try {
-			StringBuilder sb = new StringBuilder();
-			String line = br.readLine();
-
-			while (line != null) {
-				sb.append(line);
-				sb.append(System.lineSeparator());
-				line = br.readLine();
-			}
-			everything = sb.toString();
-
-			// } finally {
-			br.close();
-
-		} catch (IOException e) {
-
-		}
-		return everything;
-	}
-
 	public static void main(String[] args) throws IOException {
 		String distantHostname = null;
-
-		if (args.length > 0) {
+		String serversPath = null;
+		String operationsPath = null;
+		
+		if (args.length > 2) {
 			distantHostname = args[0];
+			serversPath = args[1];
+			operationsPath = args[2];
 		}
 
-		Client client = new Client(distantHostname);
+		Client client = new Client(distantHostname, serversPath, operationsPath);
 		
-			client.run();
-		
+		client.run();
 	}
 }

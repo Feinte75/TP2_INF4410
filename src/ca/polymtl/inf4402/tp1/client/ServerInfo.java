@@ -12,6 +12,7 @@ public class ServerInfo {
 	private int port;
 	private boolean hs;
 	private int timer;
+	private int load;
 	
 //	public ServerInfo(String name, String ip, int port, boolean hs, int timer) {
 //		super();
@@ -22,6 +23,14 @@ public class ServerInfo {
 //		this.timer = timer;
 //	}
 
+	public int getLoad() {
+		return load;
+	}
+
+	public void setLoad(int load) {
+		this.load = load;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -29,6 +38,7 @@ public class ServerInfo {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
 	@XmlElement(name="ip")  
 	public String getIp() {
 		return ip;
@@ -37,6 +47,7 @@ public class ServerInfo {
 	public void setIp(String ip) {
 		this.ip = ip;
 	}
+	
 	@XmlElement(name="port")
 	public int getPort() {
 		return port;

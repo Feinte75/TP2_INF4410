@@ -12,13 +12,22 @@ import ca.polymtl.inf4402.tp1.shared.ServerInterface;
 
 public class Server implements ServerInterface {
 	
+	private int serverPort;
+	
 	public static void main(String[] args) {
-		Server server = new Server();
+		int port = 0;
+		
+		if (args.length > 0) {
+			port = Integer.parseInt(args[0]);
+		}
+		
+		Server server = new Server(port);
 		server.run();
 	}
 
-	public Server() {
+	public Server(int port) {
 		super();
+		serverPort = port;
 	}
 
 	private void run() {
@@ -30,7 +39,7 @@ public class Server implements ServerInterface {
 			ServerInterface stub = (ServerInterface) UnicastRemoteObject
 					.exportObject(this, 0);
 
-			Registry registry = LocateRegistry.getRegistry();
+			Registry registry = LocateRegistry.getRegistry("localhost", serverPort);
 			registry.rebind("server", stub);
 			System.out.println("Server ready.");
 		} catch (ConnectException e) {
