@@ -13,21 +13,30 @@ import ca.polymtl.inf4402.tp1.shared.ServerInterface;
 public class Server implements ServerInterface {
 	
 	private int serverPort;
+	private float serverLoad;
 	
 	public static void main(String[] args) {
 		int port = 0;
+		int load = 0;
 		
-		if (args.length > 0) {
+		if (args.length > 1) {
 			port = Integer.parseInt(args[0]);
+			load = Integer.parseInt(args[1]);
+		}
+		else {
+			System.err.println("Not enough parameters. Please specify \n"
+					+ "<Server Port> and <Max Load>");
 		}
 		
-		Server server = new Server(port);
+		System.out.println(port);
+		Server server = new Server(port, load);
 		server.run();
 	}
 
-	public Server(int port) {
+	public Server(int port, int load) {
 		super();
 		serverPort = port;
+		serverLoad = load;
 	}
 
 	private void run() {
@@ -39,7 +48,7 @@ public class Server implements ServerInterface {
 			ServerInterface stub = (ServerInterface) UnicastRemoteObject
 					.exportObject(this, 0);
 
-			Registry registry = LocateRegistry.getRegistry("localhost", serverPort);
+			Registry registry = LocateRegistry.getRegistry(null, serverPort);
 			registry.rebind("server", stub);
 			System.out.println("Server ready.");
 		} catch (ConnectException e) {
@@ -55,17 +64,30 @@ public class Server implements ServerInterface {
 	@Override
 	public int doOperation(LinkedList<Operation> operations)
 			throws RemoteException {
-		int somme = 0;
+		int sum = 0;
 		
-		for(Operation operation : operations ){
+		/**
+		 * Probability of rejection if number of operations received is over server load
+		 */
+		float rejectionRate = (((float)operations.size() - serverLoad) / (9 * serverLoad)) * 100;
+		float rand = (float) (Math.random() * 100);
+		System.out.println("Rejection rate : " + rejectionRate + "   t : " + rand);
+		
+		if(rand < rejectionRate)
+			return -1;
+		
+			  
+		for(Operation operation : operations ){ 
+			System.out.println("Operation n°" + operations.indexOf(operation) + " : " + operation.getNom() + "  with : " + operation.getOperande());
 			if(operation.getNom().equals("fib")){
-				somme = Operations.fib(operation.getOperande());
+				sum += Operations.fib(operation.getOperande()) % 5000;
 			}
 			else {
-				somme = Operations.prime(operation.getOperande());
+				sum += Operations.prime(operation.getOperande()) % 5000;
 			}
 		}
 		
-		return somme;
+		System.out.println("Finished treatment with : " + sum);
+		return sum % 5000;
 	}
 }

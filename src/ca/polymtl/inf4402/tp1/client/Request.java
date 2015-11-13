@@ -1,24 +1,39 @@
 package ca.polymtl.inf4402.tp1.client;
 
+import java.rmi.RemoteException;
 import java.util.LinkedList;
 
 import ca.polymtl.inf4402.tp1.shared.Operation;
+import ca.polymtl.inf4402.tp1.shared.ServerInterface;
 
-public class Request {
+public class Request extends Thread {
 	
+
 	private ServerInfo serverInfo;
 	private int timer;
 	private LinkedList<Operation> operations;
-	private int retour;
+	private Result result;
+	private ServerInterface server;
 	
-	public Request(ServerInfo serverInfo, int timer) {
+	public Request(ServerInfo serverInfo, int timer, ServerInterface server, LinkedList<Operation> operations, Result result) {
 		super();
 		this.serverInfo = serverInfo;
 		this.timer = timer;
-		this.operations = new LinkedList<Operation>();
-		this.retour = -1;
+		this.server = server;
+		this.operations = operations;
+		this.result = result;
 	}
 
+	@Override
+	public void run() {
+		try {
+			result.setResult(server.doOperation(operations));
+		} catch (RemoteException e) {
+			result.setResult(-1);
+			e.printStackTrace();
+		}
+	}
+	
 	public int getTimer() {
 		return timer;
 	}
@@ -33,13 +48,5 @@ public class Request {
 
 	public void addOperation(Operation operation) {
 		this.operations.add(operation);
-	}
-
-	public int getRetour() {
-		return retour;
-	}
-
-	public void setRetour(int retour) {
-		this.retour = retour;
 	}
 }
