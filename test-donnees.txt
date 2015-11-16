@@ -1,0 +1,4 @@
+fib 4
+prime 20000
+fib 43
+fib 5

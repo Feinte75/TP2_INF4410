@@ -1,4 +1,4 @@
-package ca.polymtl.inf4402.tp1.client;
+package ca.polymtl.inf4402.tp2.repartiteur;
 
 public class Result {
 

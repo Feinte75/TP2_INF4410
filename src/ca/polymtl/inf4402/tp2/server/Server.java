@@ -1,4 +1,4 @@
-package ca.polymtl.inf4402.tp1.server;
+package ca.polymtl.inf4402.tp2.server;
 
 import java.rmi.ConnectException;
 import java.rmi.RemoteException;
@@ -7,8 +7,8 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
 
-import ca.polymtl.inf4402.tp1.shared.Operation;
-import ca.polymtl.inf4402.tp1.shared.ServerInterface;
+import ca.polymtl.inf4402.tp2.shared.Operation;
+import ca.polymtl.inf4402.tp2.shared.ServerInterface;
 
 public class Server implements ServerInterface {
 	

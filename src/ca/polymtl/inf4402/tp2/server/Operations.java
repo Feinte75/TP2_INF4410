@@ -1,4 +1,4 @@
-package ca.polymtl.inf4402.tp1.server;
+package ca.polymtl.inf4402.tp2.server;
 
 /**
  * Methodes utilitaires pour effectuer les operations du TP2.

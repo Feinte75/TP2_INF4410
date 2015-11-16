@@ -1,4 +1,4 @@
-package ca.polymtl.inf4402.tp1.client;
+package ca.polymtl.inf4402.tp2.repartiteur;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,7 +11,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import ca.polymtl.inf4402.tp1.shared.Operation;
+import ca.polymtl.inf4402.tp2.shared.Operation;
 
 public class InputParser {
 		

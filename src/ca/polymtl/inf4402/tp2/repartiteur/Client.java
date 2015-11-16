@@ -1,4 +1,4 @@
-package ca.polymtl.inf4402.tp1.client;
+package ca.polymtl.inf4402.tp2.repartiteur;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -16,8 +16,8 @@ import java.util.LinkedList;
 
 import javax.xml.bind.JAXBException;
 
-import ca.polymtl.inf4402.tp1.shared.Operation;
-import ca.polymtl.inf4402.tp1.shared.ServerInterface;
+import ca.polymtl.inf4402.tp2.shared.Operation;
+import ca.polymtl.inf4402.tp2.shared.ServerInterface;
 
 public class Client {
 	

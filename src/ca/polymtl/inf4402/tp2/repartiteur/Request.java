@@ -1,10 +1,10 @@
-package ca.polymtl.inf4402.tp1.client;
+package ca.polymtl.inf4402.tp2.repartiteur;
 
 import java.rmi.RemoteException;
 import java.util.LinkedList;
 
-import ca.polymtl.inf4402.tp1.shared.Operation;
-import ca.polymtl.inf4402.tp1.shared.ServerInterface;
+import ca.polymtl.inf4402.tp2.shared.Operation;
+import ca.polymtl.inf4402.tp2.shared.ServerInterface;
 
 public class Request extends Thread {
 	
