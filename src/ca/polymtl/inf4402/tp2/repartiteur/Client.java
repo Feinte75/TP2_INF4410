@@ -1,31 +1,29 @@
 package ca.polymtl.inf4402.tp2.repartiteur;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Serializable;
 import java.rmi.AccessException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
-
-import javax.xml.bind.JAXBException;
 
 import ca.polymtl.inf4402.tp2.shared.Operation;
 import ca.polymtl.inf4402.tp2.shared.ServerInterface;
 
 public class Client {
 	
-	private LinkedList<ServerInterface> serverStubs;
+	private LinkedList<ServerInterface> availableServers;
 	private LinkedList<ServerInfo> serverInfos;
+	private HashMap<ServerInterface, ServerInfo> servers;
+	
 	LinkedList<Operation> operations;
 	private InputParser inputParser;
 	private HashMap<Request, Result> queries;
+	
+	private static float requestTimeOut = 60f;
 	
 	public Client(String serversPath, String operationsPath) {
 		super();
@@ -39,11 +37,14 @@ public class Client {
 		serverInfos = inputParser.getServers(serversPath);
 		operations = inputParser.getOperations(operationsPath);
 		
-		serverStubs = new LinkedList<ServerInterface>();
+		availableServers = new LinkedList<ServerInterface>();
 		
+		servers = new HashMap<ServerInterface, ServerInfo>();
 		// Load all server stubs from ip / port
 		for(ServerInfo serverInfo : serverInfos) {
-			serverStubs.add(loadServerStub(serverInfo.getIp(), serverInfo.getPort()));
+			serverInfo.setServerStub(loadServerStub(serverInfo.getIp(), serverInfo.getPort()));
+			availableServers.add(serverInfo.getServerStub());
+			servers.put(serverInfo.getServerStub(), serverInfo);
 		}
 	}
 
@@ -56,10 +57,9 @@ public class Client {
 	 */
 	private void run() throws IOException {
 		int totalResult = 0;
-		int nbServers = serverStubs.size();
+		int nbServers = availableServers.size();
 		boolean work = false;
-		
-		
+		queries = new HashMap<Request, Result>();
 		
 		do {
 			int i = 0;
@@ -68,12 +68,14 @@ public class Client {
 			int opsPerServer = 10;
 			
 			work = false;
-			queries = new HashMap<Request, Result>();
 			
+			Iterator<ServerInterface> availableServerIterator = availableServers.iterator();
 			/**
 			 * Generate a request and spawn a thread to send it
 			 */
-			for(ServerInterface server : serverStubs) {
+			while(availableServerIterator.hasNext()) {
+				
+				ServerInterface server = availableServerIterator.next();
 				
 				LinkedList<Operation> splittedOperations = new LinkedList<Operation>();
 				Result requestResult = new Result();
@@ -86,11 +88,14 @@ public class Client {
 					operationEndingIndex = operations.size();
 				
 				splittedOperations.addAll(operations.subList(operationStartingIndex, operationEndingIndex));
+				operations.removeAll(splittedOperations);
 				
-				Request request = new Request(serverInfos.get(i), 0, server, splittedOperations, requestResult);
+				Request request = new Request(serverInfos.get(i), server, splittedOperations, requestResult);
 				queries.put(request, requestResult);
 				request.start();
 				
+				System.out.println("Sending " + splittedOperations.size() + " operations to " + servers.get(server).getIp() + ":" + servers.get(server).getPort());
+				availableServerIterator.remove();
 				operationStartingIndex += opsPerServer;
 				i++;
 			}
@@ -98,29 +103,60 @@ public class Client {
 			/**
 			 * Wait for all threads to finish and get the result
 			 */
-			for(Request request : queries.keySet()) {
+			Iterator<Request> currentRequestsIterator = queries.keySet().iterator();
+			
+			while(currentRequestsIterator.hasNext()) {
+				Request request = currentRequestsIterator.next();
 				try {
-					request.join();
-					int result = queries.get(request).getResult();
-					System.out.println("Remaining ops : " + operations.size());
+					// Wait a bit for request to die
+					request.join(100);
 					
-					if(result == -1) { // Server overloaded, resend request
-						System.out.println("Server overloaded, resend needed");
-						work = true;
-					}
-					else { // Request successful, remove operations from list
-						operations.removeAll(request.getOperations());
-						totalResult += result;
+					// If not dead increment timer 
+					if(request.isAlive()) {
+						//System.out.println("Request alive ! with : " + request.getTimer());
+						if(request.getTimer() > requestTimeOut) { // Check if server is locked
+							operations.addAll(request.getOperations());
+							currentRequestsIterator.remove();
+							availableServers.remove(request.getServer());
+						}
+						else {
+							request.updateTimer();
+						}
+							
+					} else { // Take the result and put the server back to the pool
 						
-						if(operations.size() != 0) { // Still operations to solve
-							work = true;
+						int result = queries.get(request).getResult();
+						System.out.println("Remaining ops : " + operations.size());
+						
+						switch (result) {
+						case -2 : // Server crashed
+							availableServers.remove(request.getServer());
+							operations.addAll(request.getOperations());
+							currentRequestsIterator.remove();
+							break;
+						case -1 : // Or Server overloaded, resend operations
+							operations.addAll(request.getOperations());
+							currentRequestsIterator.remove();
+							availableServers.add(request.getServer());
+							System.out.println("Server overloaded, resend needed");
+							
+							break;
+						default : // Request successful, remove operations from list
+							totalResult += result;
+							System.out.println("Server " + servers.get(request.getServer()).getIp()+":"+ servers.get(request.getServer()).getPort() + "  returned value : " + result);
+							availableServers.add(request.getServer());
+							currentRequestsIterator.remove();
+							break;
 						}
 					}
-						
-					System.out.println("Return value : " + queries.get(request).getResult());
+					
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+			}
+			
+			if(operations.size() != 0 || queries.size() != 0) { // Still operations to solve
+				work = true;
 			}
 			
 		} while(work); // Continue sending operations until there are no more

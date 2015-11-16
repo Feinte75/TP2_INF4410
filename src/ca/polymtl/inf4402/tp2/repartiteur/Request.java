@@ -10,15 +10,17 @@ public class Request extends Thread {
 	
 
 	private ServerInfo serverInfo;
-	private int timer;
+	private long timer;
 	private LinkedList<Operation> operations;
 	private Result result;
 	private ServerInterface server;
+	private long launchTime;
 	
-	public Request(ServerInfo serverInfo, int timer, ServerInterface server, LinkedList<Operation> operations, Result result) {
+	public Request(ServerInfo serverInfo, ServerInterface server, LinkedList<Operation> operations, Result result) {
 		super();
 		this.serverInfo = serverInfo;
-		this.timer = timer;
+		this.timer = 0;
+		this.launchTime = System.currentTimeMillis();
 		this.server = server;
 		this.operations = operations;
 		this.result = result;
@@ -34,12 +36,12 @@ public class Request extends Thread {
 		}
 	}
 	
-	public int getTimer() {
+	public long getTimer() {
 		return timer;
 	}
 
-	public void setTimer(int timer) {
-		this.timer = timer;
+	public void updateTimer() {
+		timer = (System.currentTimeMillis() - launchTime) / 1000;
 	}
 
 	public LinkedList<Operation> getOperations() {
@@ -48,5 +50,13 @@ public class Request extends Thread {
 
 	public void addOperation(Operation operation) {
 		this.operations.add(operation);
+	}
+	
+	public ServerInterface getServer() {
+		return server;
+	}
+
+	public void setServer(ServerInterface server) {
+		this.server = server;
 	}
 }

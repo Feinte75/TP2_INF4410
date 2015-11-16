@@ -3,6 +3,9 @@ package ca.polymtl.inf4402.tp2.repartiteur;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
+import ca.polymtl.inf4402.tp2.shared.ServerInterface;
 
 @XmlRootElement(name = "ServerInfo")
 public class ServerInfo {
@@ -12,7 +15,9 @@ public class ServerInfo {
 	private int port;
 	private boolean hs;
 	private int timer;
-	private int load;
+	private int loadEstimate;
+	
+	private ServerInterface serverStub;
 	
 //	public ServerInfo(String name, String ip, int port, boolean hs, int timer) {
 //		super();
@@ -24,11 +29,11 @@ public class ServerInfo {
 //	}
 
 	public int getLoad() {
-		return load;
+		return loadEstimate;
 	}
 
 	public void setLoad(int load) {
-		this.load = load;
+		this.loadEstimate = load;
 	}
 
 	public String getName() {
@@ -71,6 +76,15 @@ public class ServerInfo {
 
 	public void setTimer(int timer) {
 		this.timer = timer;
+	}
+	
+	@XmlTransient
+	public ServerInterface getServerStub() {
+		return serverStub;
+	}
+
+	public void setServerStub(ServerInterface serverStub) {
+		this.serverStub = serverStub;
 	}
 	
 	

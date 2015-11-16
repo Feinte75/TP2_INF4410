@@ -4,6 +4,10 @@ public class Result {
 
 	private int result;
 	
+	public void Result() {
+		this.result = -2;
+	}
+	
 	public int getResult() {
 		
 		return result;
