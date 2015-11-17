@@ -8,4 +8,8 @@
         <ip>127.0.0.1</ip>
         <port>50002</port>
     </ServerInfo>
+    <ServerInfo>
+    	<ip>127.0.0.1</ip> 
+    	<port>50003</port>
+    </ServerInfo>
 </ServerInfos>

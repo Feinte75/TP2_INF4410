@@ -15,7 +15,7 @@ public class ServerInfo {
 	private int port;
 	private boolean hs;
 	private int timer;
-	private int loadEstimate;
+	private int loadEstimate = 1;
 	
 	private ServerInterface serverStub;
 	
@@ -28,12 +28,19 @@ public class ServerInfo {
 //		this.timer = timer;
 //	}
 
-	public int getLoad() {
+	public int getLoadEstimate() {
 		return loadEstimate;
 	}
 
-	public void setLoad(int load) {
-		this.loadEstimate = load;
+	public void doubleLoadEstimate() {
+		this.loadEstimate *= 2;
+	}
+	
+	public void divideLoadEstimate() {
+		this.loadEstimate /= 2;
+		
+		if(this.loadEstimate < 1)
+			this.loadEstimate = 1;
 	}
 
 	public String getName() {

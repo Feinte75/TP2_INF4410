@@ -80,14 +80,16 @@ public class Server implements ServerInterface {
 		for(Operation operation : operations ){ 
 			System.out.println("Operation n°" + operations.indexOf(operation) + " : " + operation.getNom() + "  with : " + operation.getOperande());
 			if(operation.getNom().equals("fib")){
-				sum += Operations.fib(operation.getOperande()) % 5000;
+				sum += Operations.fib(operation.getOperande());
+				sum %= 5000;
 			}
 			else {
-				sum += Operations.prime(operation.getOperande()) % 5000;
+				sum += Operations.prime(operation.getOperande());
+				sum %= 5000;
 			}
 		}
 		
 		System.out.println("Finished treatment with : " + sum);
-		return sum % 5000;
+		return sum;
 	}
 }
