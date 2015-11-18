@@ -1,14 +1,14 @@
 #!/bin/sh
 
-echo "startin"
+echo "starting"
 cd bin
 rmiregistry 50001 &
 rmiregistry 50002 &
 rmiregistry 50003 &
 cd ..
-./server 50001 2 &
-./server 50002 4 &
-./server 50003 8 &
+./server 50001 2 0 &
+./server 50002 4 0 &
+./server 50003 8 0 &
 
 echo "3 Servers started on ports 50001 to 50003, press enter to exit and kill the servers"
 
