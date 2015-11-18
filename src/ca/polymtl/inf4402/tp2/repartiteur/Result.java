@@ -4,7 +4,7 @@ public class Result {
 
 	private int result;
 	
-	public void Result() {
+	public Result() {
 		this.result = -2;
 	}
 	

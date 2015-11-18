@@ -31,7 +31,6 @@ public class Request extends Thread {
 		try {
 			result.setResult(server.doOperation(operations));
 		} catch (RemoteException e) {
-			result.setResult(-1);
 			e.printStackTrace();
 		}
 	}
