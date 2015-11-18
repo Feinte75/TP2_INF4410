@@ -28,6 +28,18 @@ public class ServerInfo {
 //		this.timer = timer;
 //	}
 
+	/**
+	 * Utility function, get a description string from a server stub
+	 * Of format : "ip:port"
+	 * 
+	 * @param server To be described
+	 * @return String representation of the stub
+	 */
+	public String getServerIpPort() {
+		
+		return ip + ":" + port;
+	}
+	
 	public int getLoadEstimate() {
 		return loadEstimate;
 	}
