@@ -1,28 +1,36 @@
 package ca.polymtl.inf4402.tp2.repartiteur;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import ca.polymtl.inf4402.tp2.shared.Operation;
 import ca.polymtl.inf4402.tp2.shared.ServerInterface;
 
 public class InsecureStrategy implements RepartitionStrategy {
 
-static final int requestTimeout = 60;
+	static final int requestTimeout = 60;
 	
 	@Override
 	public int computeResult(LinkedList<Operation> operations, HashMap<ServerInterface, ServerInfo> servers) {
 		
 		int totalResult = 0;
+		int[] intermediateResults;
+		
 		HashMap<Request, Result> queries = new HashMap<Request, Result>();
 		
 		LinkedList<ServerInterface> availableServers = new LinkedList<ServerInterface>();
 		availableServers.addAll(servers.keySet());
-
+		
+		intermediateResults = new int[availableServers.size()];
+		LinkedList<Operation> splittedOperations = null;
+		
 		do {
 			int operationEndingIndex = 0;
-			int nbOpsToSend = 0;
+			int nbOpsToSend = 1;
 
 			if(availableServers.size() != 0 && operations.size() > 0)
 				System.out.println("Remaining ops : " + operations.size());
@@ -36,11 +44,11 @@ static final int requestTimeout = 60;
 
 				ServerInterface server = availableServerIterator.next();
 
-				LinkedList<Operation> splittedOperations = new LinkedList<Operation>();
+				splittedOperations = new LinkedList<Operation>();
 				Result requestResult = new Result();
 				
 				// Determine the number of operations we can send to the server
-				nbOpsToSend = servers.get(server).getLoadEstimate();
+				//nbOpsToSend = servers.get(server).getLoadEstimate();
 				
 				if (operations.size() > nbOpsToSend)
 					// Enough operations to send
@@ -53,7 +61,7 @@ static final int requestTimeout = 60;
 				splittedOperations.addAll(operations.subList(0, operationEndingIndex));
 				
 				// Remove operations from the list
-				operations.removeAll(splittedOperations);
+				//operations.removeAll(splittedOperations);
 
 				Request request = new Request(servers.get(server), server, splittedOperations, requestResult);
 				
@@ -72,12 +80,13 @@ static final int requestTimeout = 60;
 			 * For each active request check if they have ended. If so manage the result
 			 */
 			Iterator<Request> currentRequestsIterator = queries.keySet().iterator();
-
+			int i = 0;
+			// Wait for all requests to end
 			while (currentRequestsIterator.hasNext()) {
 				Request request = currentRequestsIterator.next();
 				
-				try {
-					// Check if request is dead for few ms
+				// Wait for the request to end
+				try {					
 					request.join();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -101,7 +110,7 @@ static final int requestTimeout = 60;
 
 					switch (result) {
 					case -2: // Result not modified, server crashed
-						System.out.println(servers.get(request.getServer()).getServerIpPort() + " -> crashed");
+						System.out.println(servers.get(request.getServer()).getServerIpPort() + " -> crashed | Removing it from available servers");
 						availableServers.remove(request.getServer());
 						operations.addAll(request.getOperations());
 						currentRequestsIterator.remove();
@@ -116,13 +125,40 @@ static final int requestTimeout = 60;
 					default: // Request successful, sum total and double server estimated load
 						System.out.println("Success : " + servers.get(request.getServer()).getServerIpPort() + " -> returned value : " + result + "  | Doubling operations load");
 						servers.get(request.getServer()).doubleLoadEstimate();
-						totalResult += result;
+						intermediateResults[i] = result;
 						availableServers.add(request.getServer());
 						currentRequestsIterator.remove();
 						break;
 					}
 				}
+				i++;
 			}
+			
+			HashMap<Integer, Integer> frequency = new HashMap<Integer, Integer>();
+			boolean consensus = false;
+			System.out.println("Server majority is : " + Math.round(intermediateResults.length / 2f));
+			
+			for (int j = 0; j < intermediateResults.length; j++) {	
+				
+				if(frequency.containsKey(intermediateResults[j]))
+					frequency.put(intermediateResults[j], frequency.get(intermediateResults[j]) + 1 );
+				else
+					frequency.put(intermediateResults[j], 1 );
+				
+				if(frequency.get(intermediateResults[j]) >= Math.round(intermediateResults.length /2f)) {
+					totalResult += intermediateResults[j];
+					System.out.println("Consensus on " + intermediateResults[j] + " as a good result");
+					operations.removeAll(splittedOperations);
+					consensus = true;
+					break;
+				}
+			}
+			
+			if (!consensus) {
+				System.out.println("Error in insecure consensus, a server is misconfigured or down");
+				System.exit(-1);
+			}
+			
 			// Still operations to solve
 			if (operations.size() == 0 && queries.size() == 0) { 
 				break;

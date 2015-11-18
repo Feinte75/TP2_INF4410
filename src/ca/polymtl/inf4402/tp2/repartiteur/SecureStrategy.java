@@ -9,6 +9,7 @@ import ca.polymtl.inf4402.tp2.shared.ServerInterface;
 
 public class SecureStrategy implements RepartitionStrategy {
 
+	// 
 	static final int requestTimeout = 60;
 	
 	@Override
@@ -123,6 +124,7 @@ public class SecureStrategy implements RepartitionStrategy {
 					}
 				}
 			}
+			
 			// Still operations to solve
 			if (operations.size() == 0 && queries.size() == 0) { 
 				break;

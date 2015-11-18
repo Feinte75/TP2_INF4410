@@ -13,7 +13,7 @@ import java.util.LinkedList;
 import ca.polymtl.inf4402.tp2.shared.Operation;
 import ca.polymtl.inf4402.tp2.shared.ServerInterface;
 
-public class Client {
+public class Repartiteur {
 
 	private RepartitionStrategy repartitionStrategy;
 	
@@ -22,7 +22,7 @@ public class Client {
 	
 	private InputParser inputParser;
 
-	public Client(String serversPath, String operationsPath, boolean secureRepartitionMode) {
+	public Repartiteur(String serversPath, String operationsPath, boolean secureRepartitionMode) {
 		
 		LinkedList<ServerInfo> serverInfos;
 		
@@ -30,19 +30,21 @@ public class Client {
 			System.setSecurityManager(new SecurityManager());
 		}
 
-		System.out.println("Server path : " + serversPath + "   Operations path : " + operationsPath);
+		System.out.println("Loading servers from -> Server path : " + serversPath + "  and Operations from -> Operations path : " + operationsPath);
+		
 		inputParser = new InputParser();
 		serverInfos = inputParser.getServers(serversPath);
 		operations = inputParser.getOperations(operationsPath);
-
-
+		
 		servers = new HashMap<ServerInterface, ServerInfo>();
+		
 		// Load all server stubs from ip / port
 		for (ServerInfo serverInfo : serverInfos) {
 			serverInfo.setServerStub(loadServerStub(serverInfo.getIp(), serverInfo.getPort()));
 			servers.put(serverInfo.getServerStub(), serverInfo);
 		}
 		
+		// Select Repartition strategy according to program parameter
 		if(secureRepartitionMode) {
 			repartitionStrategy = new SecureStrategy();	
 		}
@@ -51,16 +53,10 @@ public class Client {
 		}
 	}
 
-	/**
-	 * Utilisation en mode sécurisé Divise les operations en plusieurs listes
-	 * répartis ensuite sur les serveurs. Chaque requete est executée par un
-	 * thread
-	 * 
-	 * @throws IOException
-	 */
 	private void run() throws IOException {
 		int totalResult = 0;
 		
+		// Compute operations with servers according to chosen strategy
 		totalResult = repartitionStrategy.computeResult(operations, servers);
 		
 		System.out.println("Final result is : " + totalResult);
@@ -102,8 +98,7 @@ public class Client {
 			System.exit(-1);
 		}
 
-		Client client = new Client(serversPath, operationsPath, mode.equals("secure"));
-
+		Repartiteur client = new Repartiteur(serversPath, operationsPath, mode.equals("secure"));
 		client.run();
 	}
 }
