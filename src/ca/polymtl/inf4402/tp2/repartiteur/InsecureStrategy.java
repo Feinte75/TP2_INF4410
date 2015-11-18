@@ -143,7 +143,7 @@ public class InsecureStrategy implements RepartitionStrategy {
 				if(frequency.containsKey(intermediateResults[j]))
 					frequency.put(intermediateResults[j], frequency.get(intermediateResults[j]) + 1 );
 				else
-					frequency.put(intermediateResults[j], 1 );
+					frequency.put(intermediateResults[j], 1);
 				
 				if(frequency.get(intermediateResults[j]) >= Math.round(intermediateResults.length /2f)) {
 					totalResult += intermediateResults[j];

@@ -79,7 +79,7 @@ public class SecureStrategy implements RepartitionStrategy {
 				
 				try {
 					// Check if request is dead for few ms
-					request.join(10);
+					request.join(1);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
