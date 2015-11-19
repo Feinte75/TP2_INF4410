@@ -13,6 +13,7 @@ public class ServerInfo {
 	private String ip;
 	private int port;
 	private int loadEstimate = 1;
+	private Boolean mode = false;
 	
 	private ServerInterface serverStub;
 
@@ -26,11 +27,23 @@ public class ServerInfo {
 	}
 
 	public void doubleLoadEstimate() {
-		this.loadEstimate *= 2;
+		if (!mode){
+			this.loadEstimate *= 2;
+		}else{
+			this.loadEstimate += 1;
+		}
+		
 	}
 	
 	public void divideLoadEstimate() {
-		this.loadEstimate /= 2;
+		
+		if (!mode){
+			this.loadEstimate /= 2;
+		}else{
+			this.loadEstimate -= 1;
+		}
+		
+		this.mode = true; 
 		
 		if(this.loadEstimate < 1)
 			this.loadEstimate = 1;
