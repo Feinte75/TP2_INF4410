@@ -26,23 +26,22 @@ public class ServerInfo {
 		return loadEstimate;
 	}
 
-	public void doubleLoadEstimate() {
+	public void increaseLoadEstimate() {
+		
 		if (!mode){
 			this.loadEstimate *= 2;
-		}else{
+		} else{
 			this.loadEstimate += 1;
 		}
-		
 	}
 	
-	public void divideLoadEstimate() {
+	public void decreaseLoadEstimate() {
 		
 		if (!mode){
 			this.loadEstimate /= 2;
-		}else{
+		} else{
 			this.loadEstimate -= 1;
 		}
-		
 		this.mode = true; 
 		
 		if(this.loadEstimate < 1)

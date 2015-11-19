@@ -109,14 +109,14 @@ public class SecureStrategy implements RepartitionStrategy {
 						break;
 					case -1: // Server overloaded, put operations back to the list and reduce server estimated load
 						System.out.println("Failure : " + servers.get(request.getServer()).getServerIpPort() + " -> overloaded | Dividing by 2 operations load");
-						servers.get(request.getServer()).divideLoadEstimate();
+						servers.get(request.getServer()).decreaseLoadEstimate();
 						operations.addAll(request.getOperations());
 						currentRequestsIterator.remove();
 						availableServers.add(request.getServer());
 						break;
 					default: // Request successful, sum total and double server estimated load
 						System.out.println("Success : " + servers.get(request.getServer()).getServerIpPort() + " -> returned value : " + result + "  | Doubling operations load");
-						servers.get(request.getServer()).doubleLoadEstimate();
+						servers.get(request.getServer()).increaseLoadEstimate();
 						totalResult += result;
 						availableServers.add(request.getServer());
 						currentRequestsIterator.remove();
