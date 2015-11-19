@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <ServerInfos>
     <ServerInfo>
-	<ip>L4712-24</ip>
+	<ip>L4712-25</ip>
 	<port>50001</port>
     </ServerInfo>
     <ServerInfo>
-        <ip>L4712-25</ip>
+        <ip>L4712-26</ip>
         <port>50002</port>
     </ServerInfo>
     <ServerInfo>
-    	<ip>L4712-26</ip> 
+    	<ip>L4712-27</ip> 
     	<port>50003</port>
     </ServerInfo>
 </ServerInfos>
