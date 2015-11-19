@@ -1,7 +1,6 @@
 package ca.polymtl.inf4402.tp2.repartiteur;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -19,19 +18,33 @@ public class InsecureStrategy implements RepartitionStrategy {
 		
 		int totalResult = 0;
 		int[] intermediateResults;
-		
+		int[] estimatedLoad;
+		boolean error; 
 		HashMap<Request, Result> queries = new HashMap<Request, Result>();
 		
 		LinkedList<ServerInterface> availableServers = new LinkedList<ServerInterface>();
 		availableServers.addAll(servers.keySet());
 		
 		intermediateResults = new int[availableServers.size()];
+		
 		LinkedList<Operation> splittedOperations = null;
 		
 		do {
 			int operationEndingIndex = 0;
 			int nbOpsToSend = 1;
 
+			// Send nbOperations so that the less powerful server can handle it
+			int minOps = servers.get(availableServers.get(0)).getLoadEstimate();
+			for(int i = 1; i < availableServers.size(); i++) {
+				int l = servers.get(availableServers.get(i)).getLoadEstimate();
+				if( l < minOps)
+					minOps = l;
+			}
+			
+			nbOpsToSend = minOps;
+			
+			error = false;
+			
 			if(availableServers.size() != 0 && operations.size() > 0)
 				System.out.println("Remaining ops : " + operations.size());
 			
@@ -75,7 +88,7 @@ public class InsecureStrategy implements RepartitionStrategy {
 				// Remove now active server from available server list
 				availableServerIterator.remove(); 
 			}
-
+			operations.removeAll(splittedOperations);
 			/**
 			 * For each active request check if they have ended. If so manage the result
 			 */
@@ -116,14 +129,14 @@ public class InsecureStrategy implements RepartitionStrategy {
 						currentRequestsIterator.remove();
 						break;
 					case -1: // Server overloaded, put operations back to the list and reduce server estimated load
-						System.out.println("Failure : " + servers.get(request.getServer()).getServerIpPort() + " -> overloaded | Dividing by 2 operations load");
+						System.out.println("Failure : " + servers.get(request.getServer()).getServerIpPort() + " -> overloaded | Decreasing operations load");
 						servers.get(request.getServer()).decreaseLoadEstimate();
-						operations.addAll(request.getOperations());
+						error = true;
 						currentRequestsIterator.remove();
 						availableServers.add(request.getServer());
 						break;
 					default: // Request successful, sum total and double server estimated load
-						System.out.println("Success : " + servers.get(request.getServer()).getServerIpPort() + " -> returned value : " + result + "  | Doubling operations load");
+						System.out.println("Success : " + servers.get(request.getServer()).getServerIpPort() + " -> returned value : " + result + "  | Increase operations load");
 						servers.get(request.getServer()).increaseLoadEstimate();
 						intermediateResults[i] = result;
 						availableServers.add(request.getServer());
@@ -132,6 +145,11 @@ public class InsecureStrategy implements RepartitionStrategy {
 					}
 				}
 				i++;
+			}
+			
+			if(error) {
+				operations.addAll(splittedOperations);
+				continue;
 			}
 			
 			HashMap<Integer, Integer> frequency = new HashMap<Integer, Integer>();
